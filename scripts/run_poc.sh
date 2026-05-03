@@ -49,9 +49,9 @@ echo "Watching run ${run_id} ..."
 gh run watch "$run_id" --repo "$REPO" --exit-status
 
 echo "Fetching issue comments ..."
-comments="$(gh issue view "$issue_number" --repo "$REPO" --comments)"
+comments="$(gh api "repos/${REPO}/issues/${issue_number}/comments")"
 
-if grep -q "$MARKER" <<<"$comments"; then
+if jq -e --arg marker "$MARKER" 'any(.[]; .body | contains($marker))' >/dev/null <<<"$comments"; then
   echo
   echo "PoC SUCCESS"
   echo "Found marker: ${MARKER}"
